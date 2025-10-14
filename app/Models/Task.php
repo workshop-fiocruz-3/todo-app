@@ -4,11 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
- * Task Model - Modelo que representa uma tarefa no sistema
- * 
- * Este modelo gerencia as tarefas do sistema de gerenciamento de tarefas.
+ * Task Model - Modelo que representa uma tarefa no sistema.
+ *
  * Cada tarefa possui:
  * - id: Identificador único
  * - title: Título da tarefa (obrigatório)
@@ -22,11 +22,8 @@ class Task extends Model
     use HasFactory;
 
     /**
-     * Os atributos que podem ser preenchidos em massa
-     * 
-     * Define quais campos podem ser preenchidos através de
-     * operações em massa como create() e update()
-     * 
+     * Os atributos que podem ser preenchidos em massa.
+     *
      * @var array<int, string>
      */
     protected $fillable = [
@@ -36,11 +33,8 @@ class Task extends Model
     ];
 
     /**
-     * Os atributos que devem ser convertidos para tipos nativos
-     * 
-     * O campo 'completed' é automaticamente convertido para boolean
-     * quando acessado ou modificado
-     * 
+     * Os atributos que devem ser convertidos para tipos nativos.
+     *
      * @var array<string, string>
      */
     protected $casts = [
@@ -48,59 +42,59 @@ class Task extends Model
     ];
 
     /**
-     * Escopo para filtrar apenas tarefas concluídas
-     * 
+     * Escopo para filtrar apenas tarefas concluídas.
+     *
      * Uso: Task::completed()->get()
-     * 
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param  Builder $query Instância do construtor de consultas Eloquent.
+     * @return Builder Consulta modificada apenas com tarefas concluídas.
      */
-    public function scopeCompleted($query)
+    public function scopeCompleted(Builder $query): Builder
     {
         return $query->where('completed', true);
     }
 
     /**
-     * Escopo para filtrar apenas tarefas pendentes
-     * 
+     * Escopo para filtrar apenas tarefas pendentes.
+     *
      * Uso: Task::pending()->get()
-     * 
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     *
+     * @param Builder $query Instância do construtor de consultas Eloquent.
+     * @return Builder Consulta modificada apenas com tarefas pendentes.
      */
-    public function scopePending($query)
+    public function scopePending(Builder  $query): Builder
     {
         return $query->where('completed', false);
     }
 
     /**
-     * Verifica se a tarefa está concluída
-     * 
-     * @return bool
+     * Verifica se a tarefa está concluída.
+     *
+     * @return  boolean Verdadeiro se a tarefa estiver concluída, falso caso contrário.
      */
-    public function isCompleted()
+    public function isCompleted(): bool
     {
-        return $this->completed;
+        return (bool) $this->completed;
     }
 
     /**
-     * Marca a tarefa como concluída
-     * 
-     * @return bool
+     * Marca a tarefa como concluída.
+     *
+     * @return boolean Verdadeiro se a atualização for bem-sucedida.
      */
-    public function markAsCompleted()
+    public function markAsCompleted(): bool
     {
-        return $this->update(['completed' => true]);
+        return $this->update(['completed' => true]); 
     }
 
     /**
-     * Marca a tarefa como pendente
-     * 
-     * @return bool
+     * Marca a tarefa como pendente.
+     *
+     * @return boolean Verdadeiro se a atualização for bem-sucedida.
      */
-    public function markAsPending()
+    public function markAsPending(): bool
     {
-        return $this->update(['completed' => false]);
+        return $this->update(['completed' => false]); 
     }
+
 }
-

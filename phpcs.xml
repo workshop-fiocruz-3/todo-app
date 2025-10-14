@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<ruleset name="LaravelProjeto">
+    <description>Regras de estilo para projeto Laravel</description>
+
+    <!-- Diretórios que serão analisados -->
+    <file>app</file>
+    <file>resources</file>
+
+    <!-- Excluir algumas pastas desnecessárias -->
+    <exclude-pattern>*/Providers/*</exclude-pattern>
+    <exclude-pattern>*/Console/*</exclude-pattern>
+    <exclude-pattern>*/Exceptions/*</exclude-pattern>
+    <exclude-pattern>*/Middleware/*</exclude-pattern>
+    <exclude-pattern>*/Controllers/*</exclude-pattern>
+    <exclude-pattern>*/resources/views/*</exclude-pattern>
+    <exclude-pattern>bootstrap/*</exclude-pattern>
+    <exclude-pattern>storage/*</exclude-pattern>
+    <exclude-pattern>vendor/*</exclude-pattern>
+    <exclude-pattern>node_modules/*</exclude-pattern>
+    <exclude-pattern>public/*</exclude-pattern>
+
+    <!-- Usa PSR-12 como base -->
+    <rule ref="PSR12">
+        <!-- Ignora regras específicas -->
+        <exclude name="Generic.Files.LineLength"/>
+        <exclude name="Squiz.Commenting.FunctionComment.Missing"/>
+        <exclude name="Squiz.Commenting.ClassComment.Missing"/>
+        <exclude name="PSR1.Methods.CamelCapsMethodName.NotCamelCaps"/>
+    </rule>
+
+    <!-- Ignora regra específica do PSR-2 -->
+    <rule ref="PSR2">
+        <exclude name="PSR2.Classes.ClassDeclaration.CloseBraceAfterBody"/>
+    </rule>
+
+    <!-- Argumentos globais -->
+    <arg name="encoding" value="utf-8"/>
+    <arg name="report-width" value="10"/>
+</ruleset>

@@ -4,30 +4,40 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 
 class TaskController extends Controller
 {
     /**
      * Display a listing of the resource.
+     *
+     * @return View
      */
-    public function index()
+    public function index(): View
     {
         $tasks = Task::all();
+
         return view('tasks.index', compact('tasks'));
     }
 
     /**
      * Show the form for creating a new resource.
+     *
+     * @return View
      */
-    public function create()
+    public function create(): View
     {
         return view('tasks.create');
     }
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @param  Request  $request
+     * @return RedirectResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'title' => 'required|max:255',
@@ -36,30 +46,41 @@ class TaskController extends Controller
 
         Task::create($request->all());
 
-        return redirect()->route('tasks.index')
-                         ->with('success', 'Tarefa criada com sucesso.');
+        return redirect()
+            ->route('tasks.index')
+            ->with('success', 'Tarefa criada com sucesso.');
     }
 
     /**
      * Display the specified resource.
+     *
+     * @param  Task  $task
+     * @return View
      */
-    public function show(Task $task)
+    public function show(Task $task): View
     {
         return view('tasks.show', compact('task'));
     }
 
     /**
      * Show the form for editing the specified resource.
+     *
+     * @param  Task  $task
+     * @return View
      */
-    public function edit(Task $task)
+    public function edit(Task $task): View
     {
         return view('tasks.edit', compact('task'));
     }
 
     /**
      * Update the specified resource in storage.
+     *
+     * @param  Request  $request
+     * @param  Task     $task
+     * @return RedirectResponse
      */
-    public function update(Request $request, Task $task)
+    public function update(Request $request, Task $task): RedirectResponse
     {
         $request->validate([
             'title' => 'required|max:255',
@@ -72,18 +93,30 @@ class TaskController extends Controller
             'completed' => $request->boolean('completed'),
         ]);
 
-        return redirect()->route('tasks.index')
-                         ->with('success', 'Tarefa atualizada com sucesso.');
+        return redirect()
+            ->route('tasks.index')
+            ->with('success', 'Tarefa atualizada com sucesso.');
     }
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param  Task  $task
+     * @return RedirectResponse
      */
-    public function destroy(Task $task)
+    public function destroy(Task $task): RedirectResponse
     {
         $task->delete();
 
-        return redirect()->route('tasks.index')
-                         ->with('success', 'Tarefa excluída com sucesso.');
+        return redirect()
+            ->route('tasks.index')
+            ->with('success', 'Tarefa excluída com sucesso.');
+    }
+
+    //  Método propositalmente com erro para demonstrar o PHPStan
+    public function calculateTaskProgress($task)
+    {
+        // Falta ; no final do return
+        return $task->completedSteps / $task->totalSteps * 100;
     }
 }
