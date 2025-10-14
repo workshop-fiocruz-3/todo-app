@@ -41,7 +41,7 @@ jobs:
         run: vendor/bin/phpstan analyse --memory-limit=1G
 
       - name: Rodar CodeSniffer (PSR-12)
-        run: vendor/bin/phpcs --standard=PSR12 app/
+        run: vendor/bin/phpcs
 
   deploy:
     name: Stage de Deploy
