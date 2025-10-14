@@ -84,7 +84,7 @@ class Task extends Model
      */
     public function markAsCompleted(): bool
     {
-        return $this->update(['completed' => true]); 
+        return $this->update(['completed' => true]);
     }
 
     /**
@@ -94,7 +94,7 @@ class Task extends Model
      */
     public function markAsPending(): bool
     {
-        return $this->update(['completed' => false]); 
+        return $this->update(['completed' => false]);
     }
 
 }
