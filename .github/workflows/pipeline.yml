@@ -1,0 +1,74 @@
+name: CI/CD Laravel
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  quality:
+    name: Stage de Qualidade
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer
+          extensions: mbstring, xml, bcmath, intl, zip, curl, dom, pdo, mysql
+          coverage: xdebug
+
+      - name: Instalar dependências
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Copiar arquivo .env de exemplo
+        run: cp .env.example .env || true
+
+      - name: Gerar chave da aplicação
+        run: php artisan key:generate
+
+      - name: Rodar testes (PHPUnit)
+        run: vendor/bin/phpunit --testdox
+
+      - name: Rodar análise estática (PHPStan)
+        run: vendor/bin/phpstan analyse --memory-limit=1G
+
+      - name: Rodar CodeSniffer (PSR-12)
+        run: vendor/bin/phpcs --standard=PSR12 app/
+
+  deploy:
+    name: Stage de Deploy
+    runs-on: self-hosted
+    needs: quality
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer
+
+      - name: Instalar dependências de produção
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Build Laravel (cache, otimizações)
+        run: |
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+
+      - name: Copiar aplicação para diretório do Nginx
+        run: |
+          sudo rsync -av --delete ./ /var/www/html/laravel-app/
+
+      - name: Reiniciar serviços
+        run: |
+          sudo systemctl restart php-fpm
+          sudo systemctl restart nginx
