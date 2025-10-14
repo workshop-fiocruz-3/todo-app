@@ -1,10 +1,10 @@
-name: Laravel CI/CD Local
+name: Laravel CI/CD (Self-Hosted)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
 
 jobs:
   # ===============================
@@ -14,8 +14,7 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Instalar dependências
         run: |
@@ -34,17 +33,13 @@ jobs:
     needs: build
 
     steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Rodar testes PHPUnit
-        run: vendor/bin/phpunit --colors=always || true
-
-      - name: Rodar PHPStan (análise estática)
-        run: vendor/bin/phpstan analyse --no-progress || true
-
-      - name: Rodar PHP_CodeSniffer (PSR-12)
-        run: vendor/bin/phpcs --standard=PSR12 app/ || true
+      - name: Testes e análise
+        run: |
+          vendor/bin/phpunit --colors=always || true
+          vendor/bin/phpstan analyse --no-progress || true
+          vendor/bin/phpcs --standard=PSR12 app/ || true
 
   # ===============================
   # 3️⃣ DEPLOY
@@ -54,10 +49,19 @@ jobs:
     needs: quality
 
     steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Fazer deploy local
+      - name: Fix permissions before deploy
+        run: |
+          echo "🔧 Ajustando permissões antes do deploy..."
+          sudo chown -R nginx:nginx /home/fiocruzlab/todo-app
+          sudo chmod -R 775 /home/fiocruzlab/todo-app
+          sudo mkdir -p /home/fiocruzlab/todo-app/storage /home/fiocruzlab/todo-app/bootstrap/cache
+          sudo chown -R nginx:nginx /home/fiocruzlab/todo-app/storage /home/fiocruzlab/todo-app/bootstrap/cache
+          sudo chmod -R 775 /home/fiocruzlab/todo-app/storage /home/fiocruzlab/todo-app/bootstrap/cache
+          echo "✅ Permissões ajustadas!"
+
+      - name: Deploy local
         run: |
           echo "🚀 Iniciando deploy..."
           rm -rf /home/fiocruzlab/todo-app/*
