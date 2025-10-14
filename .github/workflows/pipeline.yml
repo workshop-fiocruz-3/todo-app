@@ -1,4 +1,4 @@
-name: CI/CD Laravel
+name: Laravel CI/CD
 
 on:
   push:
@@ -12,15 +12,18 @@ jobs:
 
     steps:
       - name: Checkout do código
-        uses: actions/checkout@v4
+        run: |
+          if [ ! -d ".git" ]; then
+            git clone https://github.com/${GITHUB_REPOSITORY}.git .
+          fi
+          git fetch origin main
+          git reset --hard origin/main
 
-      - name: Configurar PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.1'
-          tools: composer
-          extensions: mbstring, xml, bcmath, intl, zip, curl, dom, pdo, mysql
-          coverage: xdebug
+      - name: Verificar PHP instalado
+        run: php -v
+
+      - name: Verificar Composer instalado
+        run: composer -V
 
       - name: Instalar dependências
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
@@ -46,27 +49,28 @@ jobs:
     needs: quality
 
     steps:
-      - name: Checkout do código
-        uses: actions/checkout@v4
-
-      - name: Configurar PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.1'
-          tools: composer
+      - name: Atualizar código da branch main
+        run: |
+          cd /var/www/html/laravel-app
+          sudo git fetch origin main
+          sudo git reset --hard origin/main
 
       - name: Instalar dependências de produção
-        run: composer install --no-dev --optimize-autoloader
-
-      - name: Build Laravel (cache, otimizações)
         run: |
+          cd /var/www/html/laravel-app
+          composer install --no-dev --optimize-autoloader
+
+      - name: Otimizar Laravel (cache de config, rotas e views)
+        run: |
+          cd /var/www/html/laravel-app
           php artisan config:cache
           php artisan route:cache
           php artisan view:cache
 
-      - name: Copiar aplicação para diretório do Nginx
+      - name: Ajustar permissões
         run: |
-          sudo rsync -av --delete ./ /var/www/html/laravel-app/
+          sudo chown -R nginx:nginx /var/www/html/laravel-app
+          sudo chmod -R 775 /var/www/html/laravel-app/storage /var/www/html/laravel-app/bootstrap/cache
 
       - name: Reiniciar serviços
         run: |
