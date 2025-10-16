@@ -50,24 +50,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Detalhes do usuário
-        run: |
-          whoami
-          id
-          pwd
-          groups
-      - name: Exibir usuário atual
-        run: whoami
-      - name: Fix permissions before deploy
-        run: |
-          echo "🔧 Ajustando permissões antes do deploy..."
-          sudo chown -R nginx:nginx /home/fiocruzlab/todo-app
-          sudo chmod -R 775 /home/fiocruzlab/todo-app
-          sudo mkdir -p /home/fiocruzlab/todo-app/storage /home/fiocruzlab/todo-app/bootstrap/cache
-          sudo chown -R nginx:nginx /home/fiocruzlab/todo-app/storage /home/fiocruzlab/todo-app/bootstrap/cache
-          sudo chmod -R 775 /home/fiocruzlab/todo-app/storage /home/fiocruzlab/todo-app/bootstrap/cache
-          echo "✅ Permissões ajustadas!"
-
       - name: Deploy local
         run: |
           echo "🚀 Iniciando deploy..."
