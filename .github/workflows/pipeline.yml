@@ -8,7 +8,7 @@ on:
  
 jobs:
   # ===============================
-  # 1️⃣ BUILD
+  #  BUILD
   # ===============================
   build:
     runs-on: self-hosted
@@ -26,7 +26,7 @@ jobs:
           php artisan view:cache || true
  
   # ===============================
-  # 2️⃣ QUALIDADE
+  #  QUALIDADE
   # ===============================
   quality:
     runs-on: self-hosted
@@ -42,7 +42,7 @@ jobs:
           vendor/bin/phpcs --standard=PSR12 app/ || true
  
   # ===============================
-  # 3️⃣ DEPLOY
+  #  DEPLOY
   # ===============================
   deploy:
     runs-on: self-hosted
@@ -53,7 +53,7 @@ jobs:
  
       - name: Deploy local com rsync
         run: |
-          echo "🚀 Iniciando deploy..."
+          echo "Iniciando deploy"
  
           # Instalar rsync caso não exista
           if ! command -v rsync &> /dev/null; then
@@ -65,15 +65,7 @@ jobs:
           rsync -aAX --delete \
             --exclude 'storage' \
             --exclude 'bootstrap/cache' \
-            ./ /home/fiocruzlab/todo-app/
- 
-          # Corrigir permissões e contexto SELinux
-          sudo chown -R fiocruzlab:nginx /home/fiocruzlab/todo-app
-          sudo chmod -R 775 /home/fiocruzlab/todo-app
-          sudo setfacl -R -m u:nginx:rwx,u:fiocruzlab:rwx /home/fiocruzlab/todo-app
-          sudo setfacl -R -m d:u:nginx:rwx,d:u:fiocruzlab:rwx /home/fiocruzlab/todo-app
-          sudo chcon -R -t httpd_sys_rw_content_t /home/fiocruzlab/todo-app/storage /home/fiocruzlab/todo-app/bootstrap/cache
-          sudo restorecon -Rv /home/fiocruzlab/todo-app
+            ./ /home/fiocruzlab/todo-app/ 
  
           # Reconstruir cache do Laravel
           cd /home/fiocruzlab/todo-app
@@ -82,4 +74,4 @@ jobs:
           php artisan route:cache || true
           php artisan view:cache || true
  
-          echo "✅ Deploy finalizado com sucesso!"
+          echo "Deploy finalizado com sucesso"
