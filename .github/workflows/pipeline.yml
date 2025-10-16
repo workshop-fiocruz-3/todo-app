@@ -11,7 +11,7 @@ jobs:
   #  BUILD
   # ===============================
   build:
-    runs-on: self-hosted
+    runs-on: [self-hosted, NEW-VM]  
  
     steps:
       - uses: actions/checkout@v4
