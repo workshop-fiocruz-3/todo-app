@@ -1,4 +1,3 @@
-#IGOR
 name: Laravel CI/CD (Self-Hosted)
  
 on:
@@ -6,58 +5,66 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
- 
 jobs:
   # ===============================
   #  BUILD
   # ===============================
+  
   build:
-    runs-on: self-hosted
+    runs-on: [self-hosted,label-1] 
  
     steps:
       - uses: actions/checkout@v4
  
+      # ✅ Passo 4 — Verificação do Composer no PATH
+      - name: Verificar Composer no ambiente
+        run: |
+          echo "Verificando Composer no runner..."
+          echo "PATH atual: $PATH"
+          which composer || echo "Composer não encontrado"
+          composer --version || echo "Composer não disponível"
+ 
+      # ✅ Passo 3 — Usar caminho absoluto do Composer
       - name: Instalar dependências
         run: |
-          composer install --no-interaction --no-progress --prefer-dist
+          # Use o caminho completo para o Composer.
+          # Se necessário, troque /usr/local/bin/composer por /usr/bin/composer
+          /usr/local/bin/composer install --no-interaction --no-progress --prefer-dist
+ 
           cp .env.example .env || true
           php artisan key:generate || true
           php artisan config:cache || true
           php artisan route:cache || true
           php artisan view:cache || true
- 
   # ===============================
   #  QUALIDADE
   # ===============================
   quality:
     runs-on: self-hosted
     needs: build
- 
     steps:
       - uses: actions/checkout@v4
- 
       - name: Testes e análise
         run: |
           vendor/bin/phpunit --colors=always || true
           vendor/bin/phpstan analyse --no-progress || true
           vendor/bin/phpcs --standard=PSR12 app/ || true
- 
   # ===============================
   #  DEPLOY
   # ===============================
   deploy:
     runs-on: self-hosted
     needs: quality
- 
     steps:
       - uses: actions/checkout@v4
- 
-      - name: Deploy local com rsync
+      - name: Deploy local
         run: |
           echo "Iniciando deploy"
- 
+       
+          ls -ld /srv/apps/todo-app
           # Instalar rsync caso não exista
           if ! command -v rsync &> /dev/null; then
+            
             echo "🔧 Instalando rsync..."
             sudo yum install -y rsync || sudo apt install -y rsync
           fi
@@ -66,13 +73,13 @@ jobs:
           rsync -aAX --delete \
             --exclude 'storage' \
             --exclude 'bootstrap/cache' \
-            ./ /home/fiocruzlab/todo-app/ 
+            ./ /srv/apps/todo-app
  
           # Reconstruir cache do Laravel
-          cd /home/fiocruzlab/todo-app
-          composer install --no-interaction --no-progress --prefer-dist --optimize-autoloader
+          cd /srv/apps/todo-app
+          /usr/local/bin/composer install --no-interaction --no-progress --prefer-dist --optimize-autoloader
           php artisan config:cache || true
           php artisan route:cache || true
           php artisan view:cache || true
  
-          echo "Deploy finalizado com sucesso"
+          echo "✅ Deploy finalizado com sucesso"
