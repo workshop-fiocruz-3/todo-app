@@ -10,7 +10,7 @@ jobs:
   #  BUILD
   # ===============================
   build:
-    runs-on: [self-hosted,Linux,X64,label-1] 
+    runs-on: [self-hosted,NEW-VM] 
  
     steps:
       - uses: actions/checkout@v4
