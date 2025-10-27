@@ -1,6 +1,5 @@
 name: Laravel CI/CD (Self-Hosted)
 
-
 on:
   push:
     branches: [ main ]
@@ -13,13 +12,25 @@ jobs:
   # ===============================
   build:
     runs-on: [self-hosted, NEW-VM]  
- 
+
     steps:
       - uses: actions/checkout@v4
- 
+
+      # ✅ Passo 4 — Verificação do Composer no PATH
+      - name: Verificar Composer no ambiente
+        run: |
+          echo "Verificando Composer no runner..."
+          echo "PATH atual: $PATH"
+          which composer || echo "Composer não encontrado"
+          composer --version || echo "Composer não disponível"
+
+      # ✅ Passo 3 — Usar caminho absoluto do Composer
       - name: Instalar dependências
         run: |
-          composer install --no-interaction --no-progress --prefer-dist
+          # Use o caminho completo para o Composer.
+          # Se necessário, troque /usr/local/bin/composer por /usr/bin/composer
+          /usr/local/bin/composer install --no-interaction --no-progress --prefer-dist
+
           cp .env.example .env || true
           php artisan key:generate || true
           php artisan config:cache || true
@@ -55,24 +66,24 @@ jobs:
       - name: Deploy local com rsync
         run: |
           echo "Iniciando deploy"
- 
+
           # Instalar rsync caso não exista
           if ! command -v rsync &> /dev/null; then
             echo "🔧 Instalando rsync..."
             sudo yum install -y rsync || sudo apt install -y rsync
           fi
- 
+
           # Sincronizar código mantendo permissões e ignorando pastas críticas
           rsync -aAX --delete \
             --exclude 'storage' \
             --exclude 'bootstrap/cache' \
             ./ /home/fiocruzlab/todo-app/ 
- 
+
           # Reconstruir cache do Laravel
           cd /home/fiocruzlab/todo-app
-          composer install --no-interaction --no-progress --prefer-dist --optimize-autoloader
+          /usr/local/bin/composer install --no-interaction --no-progress --prefer-dist --optimize-autoloader
           php artisan config:cache || true
           php artisan route:cache || true
           php artisan view:cache || true
- 
-          echo "Deploy finalizado com sucesso"
+
+          echo "✅ Deploy finalizado com sucesso"
