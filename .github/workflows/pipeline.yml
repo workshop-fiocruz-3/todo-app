@@ -61,12 +61,19 @@ jobs:
         run: |
           echo "Iniciando deploy"
        
+          ls -ld /srv/apps/todo-app
+          # Instalar rsync caso não exista
+          if ! command -v rsync &> /dev/null; then
+            
+            echo "🔧 Instalando rsync..."
+            sudo yum install -y rsync || sudo apt install -y rsync
+          fi
+ 
           # Sincronizar código mantendo permissões e ignorando pastas críticas
-          find /srv/apps/todo-app -mindepth 1 \
-           ! -path '/srv/apps/todo-app/storage/*' \
-           ! -path '/srv/apps/todo-app/bootstrap/cache/*' \
-           -exec rm -rf {} +
-          cp -a ./ /srv/apps/todo-app
+          rsync -aAX --delete \
+            --exclude 'storage' \
+            --exclude 'bootstrap/cache' \
+            ./ /srv/apps/todo-app
  
           # Reconstruir cache do Laravel
           cd /srv/apps/todo-app
