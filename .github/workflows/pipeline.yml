@@ -59,18 +59,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Deploy local com rsync
         run: |
-          echo "=== Diagnóstico do Ambiente ==="
-          echo "Usuário real: $(whoami)"
-          echo "Home: $HOME"
-          echo "UID/GID: $(id)"
-          echo "Shell atual: $SHELL"
-          echo "Diretório atual: $(pwd)"
-          echo "Comando atual: $(ps -p $$ -o args=)"
-          echo "Ambiente:"
-          env | sort
-          echo "==============================="
           echo "Iniciando deploy"
-          whoami
           ls -ld /srv/apps/todo-app
           # Instalar rsync caso não exista
           if ! command -v rsync &> /dev/null; then
