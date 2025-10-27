@@ -57,16 +57,9 @@ jobs:
     needs: quality
     steps:
       - uses: actions/checkout@v4
-      - name: Deploy local com rsync
+      - name: Deploy local
         run: |
           echo "Iniciando deploy"
-          ls -ld /srv/apps/todo-app
-          # Instalar rsync caso não exista
-          if ! command -v rsync &> /dev/null; then
-            
-            echo "🔧 Instalando rsync..."
-            sudo yum install -y rsync || sudo apt install -y rsync
-          fi
  
           # Sincronizar código mantendo permissões e ignorando pastas críticas
           find /srv/apps/todo-app -mindepth 1 \
