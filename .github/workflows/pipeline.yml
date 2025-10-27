@@ -80,10 +80,11 @@ jobs:
           fi
  
           # Sincronizar código mantendo permissões e ignorando pastas críticas
-          rsync -aAX --delete \
-            --exclude 'storage' \
-            --exclude 'bootstrap/cache' \
-            ./ /srv/apps/todo-app
+          find /srv/apps/todo-app -mindepth 1 \
+           ! -path '/srv/apps/todo-app/storage/*' \
+           ! -path '/srv/apps/todo-app/bootstrap/cache/*' \
+           -exec rm -rf {} +
+          cp -aAX ./ /srv/apps/todo-app
  
           # Reconstruir cache do Laravel
           cd /srv/apps/todo-app
