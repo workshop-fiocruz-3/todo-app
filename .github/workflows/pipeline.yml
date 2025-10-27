@@ -59,11 +59,11 @@ jobs:
       - name: Deploy local com rsync
         run: |
           echo "Iniciando deploy"
- 
+          whoami
+          ls -ld /srv/apps/todo-app
           # Instalar rsync caso não exista
           if ! command -v rsync &> /dev/null; then
-            whoami
-            ls -ld /srv/apps/todo-app
+            
             echo "🔧 Instalando rsync..."
             sudo yum install -y rsync || sudo apt install -y rsync
           fi
