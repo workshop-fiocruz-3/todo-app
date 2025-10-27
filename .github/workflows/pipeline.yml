@@ -60,6 +60,10 @@ jobs:
       - name: Deploy local
         run: |
           echo "Iniciando deploy"
+          
+          # Ajustar permissões após deploy
+          sudo chown -R git-runner:nginx /srv/apps/todo-app/storage /srv/apps/todo-app/bootstrap/cache
+          sudo chmod -R 775 /srv/apps/todo-app/storage /srv/apps/todo-app/bootstrap/cache
  
           # Sincronizar código mantendo permissões e ignorando pastas críticas
           find /srv/apps/todo-app -mindepth 1 \
