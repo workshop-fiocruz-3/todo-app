@@ -1,89 +1,69 @@
-name: Laravel CI/CD (Self-Hosted)
+name: Deploy Laravel App
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
- 
+    branches:
+      - main   # ou altere para a branch principal do seu projeto
+
 jobs:
-  # ===============================
-  #  BUILD
-  # ===============================
-  build:
-    runs-on: [self-hosted, NEW-VM]  
-
-    steps:
-      - uses: actions/checkout@v4
-
-      # ✅ Passo 4 — Verificação do Composer no PATH
-      - name: Verificar Composer no ambiente
-        run: |
-          echo "Verificando Composer no runner..."
-          echo "PATH atual: $PATH"
-          which composer || echo "Composer não encontrado"
-          composer --version || echo "Composer não disponível"
-
-      # ✅ Passo 3 — Usar caminho absoluto do Composer
-      - name: Instalar dependências
-        run: |
-          # Use o caminho completo para o Composer.
-          # Se necessário, troque /usr/local/bin/composer por /usr/bin/composer
-          /usr/local/bin/composer install --no-interaction --no-progress --prefer-dist
-
-          cp .env.example .env || true
-          php artisan key:generate || true
-          php artisan config:cache || true
-          php artisan route:cache || true
-          php artisan view:cache || true
- 
-  # ===============================
-  #  QUALIDADE
-  # ===============================
-  quality:
-    runs-on: self-hosted
-    needs: build
- 
-    steps:
-      - uses: actions/checkout@v4
- 
-      - name: Testes e análise
-        run: |
-          vendor/bin/phpunit --colors=always || true
-          vendor/bin/phpstan analyse --no-progress || true
-          vendor/bin/phpcs --standard=PSR12 app/ || true
- 
-  # ===============================
-  #  DEPLOY
-  # ===============================
   deploy:
+    name: Deploy Laravel App (Self-Hosted)
     runs-on: self-hosted
-    needs: quality
- 
-    steps:
-      - uses: actions/checkout@v4
- 
-      - name: Deploy local com rsync
-        run: |
-          echo "Iniciando deploy"
 
-          # Instalar rsync caso não exista
-          if ! command -v rsync &> /dev/null; then
-            echo "🔧 Instalando rsync..."
-            sudo yum install -y rsync || sudo apt install -y rsync
+    steps:
+      # 1️⃣ Faz checkout do código fonte
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      # 2️⃣ Mostra o diretório atual (debug opcional)
+      - name: Mostrar diretório atual
+        run: pwd
+
+      # 3️⃣ Cria o diretório do deploy e ajusta permissões
+      - name: Criar diretório do deploy
+        run: |
+          echo "🔧 Criando diretório de destino..."
+          sudo mkdir -p /srv/apps/todo-app/public
+          sudo chown -R git-runner:git-runner /srv/apps
+          echo "✅ Diretório pronto em /srv/apps/todo-app/public"
+
+      # 4️⃣ Instala dependências PHP (Composer)
+      - name: Instalar dependências PHP
+        run: |
+          echo "📦 Instalando dependências do Laravel..."
+          composer install --no-interaction --no-progress --prefer-dist
+          echo "✅ Dependências instaladas com sucesso!"
+
+      # 5️⃣ Copia arquivos para o servidor com rsync
+      - name: Fazer deploy com rsync
+        run: |
+          echo "🚀 Iniciando deploy..."
+          rsync -avz --delete ./ /srv/apps/todo-app/public
+          echo "✅ Deploy concluído!"
+
+      # 6️⃣ Configura ambiente Laravel (caso exista o .env)
+      - name: Configurar ambiente Laravel
+        run: |
+          echo "⚙️ Configurando ambiente Laravel..."
+          if [ -f /srv/apps/todo-app/public/.env ]; then
+            echo "✅ Arquivo .env encontrado"
+          else
+            echo "⚠️ Nenhum .env encontrado — certifique-se de criá-lo!"
           fi
 
-          # Sincronizar código mantendo permissões e ignorando pastas críticas
-          rsync -aAX --delete \
-            --exclude 'storage' \
-            --exclude 'bootstrap/cache' \
-            ./ /srv/apps/todo-app/public 
-
-          # Reconstruir cache do Laravel
+      # 7️⃣ Otimiza a aplicação Laravel (cache)
+      - name: Otimizar Laravel
+        run: |
           cd /srv/apps/todo-app/public
-          /usr/local/bin/composer install --no-interaction --no-progress --prefer-dist --optimize-autoloader
-          php artisan config:cache || true
-          php artisan route:cache || true
-          php artisan view:cache || true
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          echo "✨ Laravel otimizado com sucesso!"
 
-          echo "✅ Deploy finalizado com sucesso"
+      # 8️⃣ Reinicia os serviços web (Nginx e PHP-FPM)
+      - name: Reiniciar serviços
+        run: |
+          echo "🔁 Reiniciando Nginx e PHP-FPM..."
+          sudo systemctl restart nginx
+          sudo systemctl restart php-fpm
+          echo "✅ Serviços reiniciados com sucesso!"
