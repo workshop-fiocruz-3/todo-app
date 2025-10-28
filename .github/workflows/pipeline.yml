@@ -42,7 +42,15 @@ jobs:
       - name: Gerar chave da aplicação
         run: php artisan key:generate
 
-      
+      - name: Rodar testes (PHPUnit)
+        run: vendor/bin/phpunit --testdox
+
+      - name: Rodar análise estática (PHPStan)
+        run: vendor/bin/phpstan analyse --memory-limit=1G
+
+      - name: Rodar CodeSniffer (PSR-12)
+        run: vendor/bin/phpcs
+          
   # ===============================
   #  QUALIDADE
   # ===============================
@@ -51,11 +59,14 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v4
-      - name: Testes e análise
-        run: |
-          vendor/bin/phpunit --colors=always || true
-          vendor/bin/phpstan analyse --no-progress || true
-          vendor/bin/phpcs --standard=PSR12 app/ || true
+      - name: Rodar testes (PHPUnit)
+        run: vendor/bin/phpunit --testdox
+
+      - name: Rodar análise estática (PHPStan)
+        run: vendor/bin/phpstan analyse --memory-limit=1G
+
+      - name: Rodar CodeSniffer (PSR-12)
+        run: vendor/bin/phpcs
   # ===============================
   #  DEPLOY
   # ===============================
