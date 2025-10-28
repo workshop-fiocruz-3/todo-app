@@ -46,7 +46,7 @@ jobs:
   #  QUALIDADE
   # ===============================
   quality:
-    runs-on: self-hosted
+    runs-on: [self-hosted,label-1] 
     needs: build
     steps:
       - name: Rodar testes (PHPUnit)
@@ -65,21 +65,13 @@ jobs:
   #  DEPLOY
   # ===============================
   deploy:
-    runs-on: self-hosted
+    runs-on: [self-hosted,label-1] 
     needs: quality
     steps:
       - uses: actions/checkout@v4
       - name: Deploy local
         run: |
           echo "Iniciando deploy"
-       
-          ls -ld /srv/apps/todo-app
-          # Instalar rsync caso não exista
-          if ! command -v rsync &> /dev/null; then
-            
-            echo "🔧 Instalando rsync..."
-            sudo yum install -y rsync || sudo apt install -y rsync
-          fi
  
           # Sincronizar código mantendo permissões e ignorando pastas críticas
           rsync -aAX --delete \
@@ -89,7 +81,6 @@ jobs:
  
           # Reconstruir cache do Laravel
           cd /srv/apps/todo-app
-          /usr/local/bin/composer install --no-interaction --no-progress --prefer-dist --optimize-autoloader
           php artisan config:cache || true
           php artisan route:cache || true
           php artisan view:cache || true
