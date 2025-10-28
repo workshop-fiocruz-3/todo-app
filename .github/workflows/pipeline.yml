@@ -57,7 +57,7 @@ jobs:
       - name: Rodar análise estática (PHPStan)
         run: |
           mkdir -p storage/phpstan-temp
-          vendor/bin/phpstan analyse --memory-limit=1G --tmp-dir=storage/phpstan-temp
+          vendor/bin/phpstan analyse --memory-limit=1G --tmp-file=storage/phpstan-temp
 
       - name: Rodar CodeSniffer (PSR-12)
         run: vendor/bin/phpcs
