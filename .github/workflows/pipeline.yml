@@ -1,10 +1,7 @@
-#tst
 name: Laravel CI/CD (Self-Hosted)
  
 on:
   push:
-    branches: [ main ]
-  pull_request:
     branches: [ main ]
 jobs:
   # ===============================
