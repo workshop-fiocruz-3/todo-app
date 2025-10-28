@@ -55,7 +55,7 @@ jobs:
         run: vendor/bin/phpunit --testdox
 
       - name: Rodar análise estática (PHPStan)
-        run: vendor/bin/phpstan analyse --memory-limit=1G --no-result-cache
+        run: vendor/bin/phpstan analyse --memory-limit=1G --error-format=table
 
       - name: Rodar CodeSniffer (PSR-12)
         run: vendor/bin/phpcs
