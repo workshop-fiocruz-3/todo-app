@@ -9,4 +9,4 @@ parameters:
     ignoreErrors: []
     checkMissingIterableValueType: false
     checkGenericClassInNonGenericObjectType: false
-    
+    tmpDir: null
