@@ -1,4 +1,5 @@
 name: Laravel CI/CD (Self-Hosted)
+
 on:
   push:
     branches: [ main ]
