@@ -42,15 +42,7 @@ jobs:
       - name: Gerar chave da aplicação
         run: php artisan key:generate
 
-      - name: Rodar testes (PHPUnit)
-        run: vendor/bin/phpunit --testdox
-
-      - name: Rodar análise estática (PHPStan)
-        run: vendor/bin/phpstan analyse --memory-limit=1G
-
-      - name: Rodar CodeSniffer (PSR-12)
-        run: vendor/bin/phpcs
-          
+      
   # ===============================
   #  QUALIDADE
   # ===============================
