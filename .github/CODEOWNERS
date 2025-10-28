@@ -3,7 +3,7 @@
 # Formato: <caminho> <usuário ou equipe>
 
 # --- Responsável pelos workflows do GitHub Actions ---
-.github/workflows/* @vonteburl
+# .github/workflows/* 
 
 # --- Responsável por todo o restante do repositório ---
-* @hsiqueira-brasoftware
+* @hsiqueira-brasoftware @vonteburl
