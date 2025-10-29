@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
  
-      # ✅ Passo 4 — Verificação do Composer no PATH
+      # Verificação do Composer no PATH
       - name: Verificar Composer no ambiente
         run: |
           echo "Verificando Composer no runner..."
@@ -22,9 +22,7 @@ jobs:
           which composer || echo "Composer não encontrado"
           composer --version || echo "Composer não disponível"
  
-      # ✅ Passo 3 — Usar caminho absoluto do Composer
-
- 
+      # Verificação das dependencias e versões
       - name: Verificar PHP instalado
         run: php -v
 
@@ -49,6 +47,7 @@ jobs:
     runs-on: [self-hosted,label-1] 
     needs: build
     steps:
+      # Comandos para teste de qualidade
       - name: Rodar testes (PHPUnit)
         run: vendor/bin/phpunit --testdox
 
@@ -85,4 +84,4 @@ jobs:
           php artisan route:cache || true
           php artisan view:cache || true
  
-          echo "✅ Deploy finalizado com sucesso"
+          echo "Deploy finalizado com sucesso"
