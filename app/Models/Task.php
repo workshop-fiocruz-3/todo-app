@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\Builder;
  * - completed: Status de conclusão da tarefa (boolean)
  * - created_at: Data e hora de criação
  * - updated_at: Data e hora da última atualização
+ * 
+ * 
  */
 
 
@@ -28,7 +30,7 @@ class Task extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = [
+    protected $fillable = [  
         'title',
         'description',
         'completed',
@@ -53,7 +55,7 @@ class Task extends Model
      */
     public function scopeCompleted(Builder $query): Builder
     {
-        return $query->where('completed', true);
+        return $query->where('completed', true );
     }
 
     /**
