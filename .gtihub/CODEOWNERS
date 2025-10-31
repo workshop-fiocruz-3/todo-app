@@ -1,0 +1,9 @@
+# Arquivo CODEOWNERS
+# Define responsáveis por revisão de código (Code Owners)
+# Formato: <caminho> <usuário ou equipe>
+ 
+# --- Responsável pelos workflows do GitHub Actions ---
+# .github/workflows/*
+ 
+# --- Responsável por todo o restante do repositório ---
+* @vsonderamnn
