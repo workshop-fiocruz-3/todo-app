@@ -1,0 +1,71 @@
+name: Laravel CI/CD (Self-Hosted)
+on:
+  push:
+    branches: [ main ]
+jobs:
+  # ===============================
+  #  BUILD
+  # ===============================
+  build:
+    runs-on: [self-hosted,label-1] 
+    steps:
+      - uses: actions/checkout@v4
+      # VerificaÃ§Ã£o do Composer no PATH
+      - name: Verificar Composer no ambiente
+        run: |
+          echo "Verificando Composer no runner..."
+          echo "PATH atual: $PATH"
+          which composer || echo "Composer nÃ£o encontrado"
+          composer --version || echo "Composer nÃ£o disponÃ­vel"
+      # VerificaÃ§Ã£o das dependencias e versÃµes
+      - name: Verificar PHP instalado
+        run: php -v
+      - name: Verificar Composer instalado
+        run: composer -V
+      - name: Instalar dependÃªncias
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+      - name: Copiar arquivo .env de exemplo
+        run: cp .env.example .env || true
+      - name: Gerar chave da aplicação
+        run: php artisan key:generate
+
+  # ===============================
+  #  QUALIDADE
+  # ===============================
+  quality:
+    runs-on: [self-hosted,label-1] 
+    needs: build
+    steps:
+      # Comandos para teste de qualidade
+      - name: Rodar testes (PHPUnit)
+        run: vendor/bin/phpunit --testdox
+      - name: Rodar anÃ¡lise estÃ¡tica (PHPStan)
+        run: |
+          rm -rf /tmp/phpstan || true
+          vendor/bin/phpstan analyse --memory-limit=1G --no-progress
+        env:
+          PHPSTAN_TMP_DIR: /dev/null
+      - name: Rodar CodeSniffer (PSR-12)
+        run: vendor/bin/phpcs
+  # ===============================
+  #  DEPLOY
+  # ===============================
+  deploy:
+    runs-on: [self-hosted,label-1] 
+    needs: quality
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy local
+        run: |
+          echo "Iniciando deploy"
+          # Sincronizar cÃ³digo mantendo permissÃµes e ignorando pastas crÃ­ticas
+          rsync -aAX --delete \
+            --exclude 'storage' \
+            --exclude 'bootstrap/cache' \
+            ./ /srv/apps/todo-app
+          # Reconstruir cache do Laravel
+          cd /srv/apps/todo-app
+          php artisan config:cache || true
+          php artisan route:cache || true
+          php artisan view:cache || true
+          echo "Deploy finalizado com sucesso"
